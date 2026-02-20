@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOKYO ALARM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050505;
+            color: #fff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 背景の巨大文字：視覚的な「ロンドン」への意識 */
+        .bg-text {
+            position: fixed;
+            font-size: 25vw;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            color: #0d0d0d;
+            z-index: -1;
+            letter-spacing: -0.05em;
+            user-select: none;
+        }
+
+        /* グラスモーフィズム：高級感のあるパネル */
+        .alarm-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            width: 320px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        }
+
+        /* 震えるアニメーション（アラーム作動時） */
+        @keyframes shake {
+            0% { transform: translate(0,0); }
+            10% { transform: translate(-2px, -2px); }
+            20% { transform: translate(2px, 2px); }
+            100% { transform: translate(0,0); }
+        }
+        .shaking { animation: shake 0.1s infinite; color: #ff4d4d; }
+
+        /* 入力欄のカスタマイズ */
+        input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
+        input[type="time"] {
+            background: transparent;
+            color: white;
+            font-size: 3rem;
+            border: none;
+            outline: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 100;
+            text-align: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-text">LOMDON</div>
+
+    <div class="alarm-card">
+        <header class="mb-12">
+            <p class="text-[10px] tracking-[0.6em] text-gray-500 uppercase mb-2">Current</p>
+            <div id="clock" class="text-5xl font-thin tracking-tighter" style="font-family: 'Montserrat';">00:00</div>
+        </header>
+
+        <section class="mb-16">
+            <p class="text-[10px] tracking-[0.6em] text-pink-400 uppercase mb-4">Set Time</p>
+            <input type="time" id="alarmTime" value="07:00">
+            <div class="w-8 h-[1px] bg-gray-700 mx-auto mt-2"></div>
+        </section>
+
+        <footer>
+            <button onclick="stopAlarm()" id="stopBtn" class="w-full py-4 rounded-full border border-gray-800 text-[10px] tracking-[0.4em] hover:bg-white hover:text-black transition-all active:scale-95 uppercase">
+                Stop / Deposit
+            </button>
+        </footer>
+    </div>
+
+    <script>
+        const alarmSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+        alarmSound.loop = true;
+        let isAlarming = false;
+
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + 
+                            now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').innerText = timeStr;
+
+            const setTime = document.getElementById('alarmTime').value;
+            if (setTime === timeStr && setTime !== "" && !isAlarming) {
+                playAlarm();
+            }
+        }
+
+        function playAlarm() {
+            isAlarming = true;
+            alarmSound.play();
+            document.getElementById('clock').classList.add('shaking');
+            document.getElementById('stopBtn').classList.add('border-pink-500', 'text-pink-500');
+        }
+
+        function stopAlarm() {
+            if (!isAlarming) return; // 鳴っていない時は何もしない
+
+            isAlarming = false;
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            document.getElementById('clock').classList.remove('shaking');
+            document.getElementById('stopBtn').classList.remove('border-pink-500', 'text-pink-500');
+            
+            // 設定をクリア（無限ループ防止）
+            document.getElementById('alarmTime').value = "";
+
+            // 東京のための貯金アクション
+            setTimeout(() => {
+                const confirmed = confirm("おはよう！東京のために100円貯金する？");
+                if(confirmed) {
+                    alert("さすが。その100円が東京タワーに繋がってるよ。");
+                }
+            }, 300);
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
